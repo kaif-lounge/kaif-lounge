@@ -404,6 +404,7 @@ function renderCart() {
 
 // Админ-панель
 function showAdminLogin() {
+    window.adminLogin = adminLogin;
     document.getElementById('admin-login').classList.remove('hidden');
     document.getElementById('admin-panel').classList.add('hidden');
 }
