@@ -5,14 +5,18 @@ let cart = [];
 let isAdminLoggedIn = false;
 let menuData = {};
 
+// Данные для входа в админ-панель
+const ADMIN_CREDENTIALS = {
+    username: 'admin',
+    password: 'kaif2024'
+};
+
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     loadMenuData();
     updateCartDisplay();
-    
     // Проверка URL для админ-панели
     checkAdminAccess();
-    
     // Обработка изменений в URL
     window.addEventListener('hashchange', checkAdminAccess);
 });
@@ -31,6 +35,21 @@ window.openAdmin = function() {
 
 // Загрузка данных меню
 function loadMenuData() {
+    // Проверяем, есть ли сохраненные данные в localStorage
+    const savedData = localStorage.getItem('kaif_menu_data');
+    if (savedData) {
+        try {
+            menuData = JSON.parse(savedData);
+        } catch (e) {
+            console.error('Ошибка загрузки сохраненных данных:', e);
+            loadDefaultMenuData();
+        }
+    } else {
+        loadDefaultMenuData();
+    }
+}
+
+function loadDefaultMenuData() {
     // Данные меню встроены в код
     menuData = {
         "drinks": {
@@ -178,6 +197,20 @@ function loadMenuData() {
             }
         }
     };
+
+    // Сохраняем данные по умолчанию
+    saveMenuData();
+}
+
+// Сохранение данных меню в localStorage
+function saveMenuData() {
+    try {
+        localStorage.setItem('kaif_menu_data', JSON.stringify(menuData));
+        console.log('Данные меню сохранены');
+    } catch (e) {
+        console.error('Ошибка сохранения данных:', e);
+        alert('Ошибка сохранения данных. Проверьте настройки браузера.');
+    }
 }
 
 // Навигация между страницами
@@ -213,11 +246,262 @@ function showAdminPage() {
     }
 }
 
+// АДМИН-ПАНЕЛЬ
+
+// Показ формы входа в админ-панель
+function showAdminLogin() {
+    const adminContent = document.getElementById('admin-content');
+    adminContent.innerHTML = \`
+        <div class="admin-login">
+            <h2>Вход в админ-панель</h2>
+            <form onsubmit="adminLogin(event)">
+                <div class="form-group">
+                    <label for="admin-username">Логин:</label>
+                    <input type="text" id="admin-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Пароль:</label>
+                    <input type="password" id="admin-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Войти</button>
+                <div id="admin-error" class="error-message" style="display: none;"></div>
+            </form>
+            <p style="margin-top: 20px; font-size: 12px; color: #666;">
+                Логин: admin<br>
+                Пароль: kaif2024
+            </p>
+        </div>
+    \`;
+}
+
+// Авторизация в админ-панель
+function adminLogin(event) {
+    event.preventDefault();
+
+    const username = document.getElementById('admin-username').value;
+    const password = document.getElementById('admin-password').value;
+    const errorDiv = document.getElementById('admin-error');
+
+    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        isAdminLoggedIn = true;
+        showAdminPanel();
+    } else {
+        errorDiv.textContent = 'Неверный логин или пароль';
+        errorDiv.style.display = 'block';
+
+        // Скрыть ошибку через 3 секунды
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// Выход из админ-панели
+function adminLogout() {
+    isAdminLoggedIn = false;
+    showAdminLogin();
+}
+
+// Показ админ-панели
+function showAdminPanel() {
+    const adminContent = document.getElementById('admin-content');
+
+    let html = \`
+        <div class="admin-header">
+            <h2>Управление меню</h2>
+            <div class="admin-actions">
+                <button onclick="exportMenuData()" class="btn-secondary">Экспорт данных</button>
+                <button onclick="importMenuData()" class="btn-secondary">Импорт данных</button>
+                <button onclick="resetMenuData()" class="btn-secondary">Сброс к умолчанию</button>
+                <button onclick="adminLogout()" class="btn-primary">Выйти</button>
+            </div>
+        </div>
+        <input type="file" id="import-file" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+    \`;
+
+    // Генерируем админ-панель для каждой категории
+    Object.keys(menuData).forEach(categoryKey => {
+        const category = menuData[categoryKey];
+        html += \`
+            <div class="admin-category">
+                <h3>\${category.name}</h3>
+                <div class="category-actions">
+                    <button onclick="addNewItem('\${categoryKey}')" class="btn-primary btn-small">Добавить товар</button>
+                </div>
+        \`;
+
+        Object.keys(category.items).forEach(itemKey => {
+            const item = category.items[itemKey];
+            html += \`
+                <div class="admin-item" data-category="\${categoryKey}" data-item="\${itemKey}">
+                    <div class="admin-item-name">
+                        <input type="text" value="\${item.name}" onchange="updateItemName('\${categoryKey}', '\${itemKey}', this.value)" class="name-input">
+                    </div>
+                    <div class="admin-controls">
+                        <input type="text" value="\${item.price}" onchange="updateItemPrice('\${categoryKey}', '\${itemKey}', this.value)" class="price-input" placeholder="Цена">
+                        <label class="availability-toggle">
+                            <input type="checkbox" \${item.available ? 'checked' : ''} onchange="toggleItemAvailability('\${categoryKey}', '\${itemKey}')">
+                            <span class="slider"></span>
+                        </label>
+                        <button onclick="removeItem('\${categoryKey}', '\${itemKey}')" class="btn-danger btn-small">Удалить</button>
+                    </div>
+                </div>
+            \`;
+        });
+
+        html += '</div>';
+    });
+
+    adminContent.innerHTML = html;
+}
+
+// Функции управления товарами в админ-панели
+
+function updateItemName(categoryKey, itemKey, newName) {
+    if (menuData[categoryKey] && menuData[categoryKey].items[itemKey]) {
+        menuData[categoryKey].items[itemKey].name = newName;
+        saveMenuData();
+        // Обновляем меню, если оно открыто
+        if (currentPage === 'menu-page' && currentCategory === categoryKey) {
+            renderMenuItems(categoryKey);
+        }
+    }
+}
+
+function updateItemPrice(categoryKey, itemKey, newPrice) {
+    if (menuData[categoryKey] && menuData[categoryKey].items[itemKey]) {
+        // Проверяем, является ли цена числом
+        const numPrice = parseFloat(newPrice);
+        menuData[categoryKey].items[itemKey].price = isNaN(numPrice) ? newPrice : numPrice;
+        saveMenuData();
+        // Обновляем меню, если оно открыто
+        if (currentPage === 'menu-page' && currentCategory === categoryKey) {
+            renderMenuItems(categoryKey);
+        }
+    }
+}
+
+function toggleItemAvailability(categoryKey, itemKey) {
+    if (menuData[categoryKey] && menuData[categoryKey].items[itemKey]) {
+        menuData[categoryKey].items[itemKey].available = !menuData[categoryKey].items[itemKey].available;
+        saveMenuData();
+        // Обновляем меню, если оно открыто
+        if (currentPage === 'menu-page' && currentCategory === categoryKey) {
+            renderMenuItems(categoryKey);
+        }
+    }
+}
+
+function removeItem(categoryKey, itemKey) {
+    if (confirm('Вы уверены, что хотите удалить этот товар?')) {
+        delete menuData[categoryKey].items[itemKey];
+        saveMenuData();
+        showAdminPanel(); // Перерисовываем админ-панель
+
+        // Обновляем меню, если оно открыто
+        if (currentPage === 'menu-page' && currentCategory === categoryKey) {
+            renderMenuItems(categoryKey);
+        }
+    }
+}
+
+function addNewItem(categoryKey) {
+    const itemName = prompt('Введите название нового товара:');
+    if (!itemName) return;
+
+    const itemPrice = prompt('Введите цену товара:');
+    if (!itemPrice) return;
+
+    // Генерируем уникальный ключ для товара
+    const itemKey = 'item_' + Date.now();
+
+    // Проверяем, является ли цена числом
+    const numPrice = parseFloat(itemPrice);
+    const finalPrice = isNaN(numPrice) ? itemPrice : numPrice;
+
+    menuData[categoryKey].items[itemKey] = {
+        name: itemName,
+        price: finalPrice,
+        available: true
+    };
+
+    saveMenuData();
+    showAdminPanel(); // Перерисовываем админ-панель
+
+    // Обновляем меню, если оно открыто
+    if (currentPage === 'menu-page' && currentCategory === categoryKey) {
+        renderMenuItems(categoryKey);
+    }
+}
+
+// Экспорт данных меню
+function exportMenuData() {
+    const dataStr = JSON.stringify(menuData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'kaif_menu_data.json';
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+// Импорт данных меню
+function importMenuData() {
+    document.getElementById('import-file').click();
+}
+
+function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (confirm('Вы уверены, что хотите заменить текущие данные меню?')) {
+                menuData = importedData;
+                saveMenuData();
+                showAdminPanel();
+                alert('Данные успешно импортированы!');
+
+                // Обновляем меню, если оно открыто
+                if (currentPage === 'menu-page') {
+                    renderCategories();
+                    if (Object.keys(menuData).length > 0) {
+                        showCategory(Object.keys(menuData)[0]);
+                    }
+                }
+            }
+        } catch (error) {
+            alert('Ошибка при импорте файла. Проверьте формат данных.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Сброс данных к умолчанию
+function resetMenuData() {
+    if (confirm('Вы уверены, что хотите сбросить все данные к настройкам по умолчанию? Все изменения будут потеряны.')) {
+        loadDefaultMenuData();
+        showAdminPanel();
+        alert('Данные сброшены к настройкам по умолчанию');
+
+        // Обновляем меню, если оно открыто
+        if (currentPage === 'menu-page') {
+            renderCategories();
+            if (Object.keys(menuData).length > 0) {
+                showCategory(Object.keys(menuData)[0]);
+            }
+        }
+    }
+}
+
 // Рендер категорий
 function renderCategories() {
     const categoriesContainer = document.getElementById('categories');
     categoriesContainer.innerHTML = '';
-    
+
     Object.keys(menuData).forEach(categoryKey => {
         const category = menuData[categoryKey];
         const button = document.createElement('button');
@@ -231,18 +515,18 @@ function renderCategories() {
 // Показ товаров категории
 function showCategory(categoryKey) {
     currentCategory = categoryKey;
-    
+
     // Активация кнопки категории
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     const activeBtn = Array.from(document.querySelectorAll('.category-btn'))
         .find(btn => btn.textContent === menuData[categoryKey].name);
     if (activeBtn) {
         activeBtn.classList.add('active');
     }
-    
+
     // Рендер товаров
     renderMenuItems(categoryKey);
 }
@@ -250,8 +534,10 @@ function showCategory(categoryKey) {
 function renderMenuItems(categoryKey) {
     const menuItemsContainer = document.getElementById('menu-items');
     menuItemsContainer.innerHTML = '';
-    
+
     const category = menuData[categoryKey];
+    if (!category || !category.items) return;
+
     Object.keys(category.items).forEach(itemKey => {
         const item = category.items[itemKey];
         const menuItemElement = createMenuItemElement(categoryKey, itemKey, item);
@@ -261,23 +547,21 @@ function renderMenuItems(categoryKey) {
 
 function createMenuItemElement(categoryKey, itemKey, item) {
     const div = document.createElement('div');
-    div.className = `menu-item ${!item.available ? 'unavailable' : ''}`;
-    
-    const priceText = typeof item.price === 'string' ? item.price : `${item.price}`;
-    
-    div.innerHTML = `
-        <div class="menu-item-header">
-            <div class="menu-item-name">${item.name}</div>
-            <div class="menu-item-price">${priceText} ₽</div>
+    div.className = \`menu-item \${!item.available ? 'unavailable' : ''}\`;
+
+    const priceText = typeof item.price === 'string' ? item.price : \`\${item.price}\`;
+
+    div.innerHTML = \`
+        \${!item.available ? '<div class="unavailable-overlay">Нет в наличии</div>' : ''}
+        <div class="menu-item-content">
+            <h3 class="menu-item-title">\${item.name}</h3>
+            <div class="menu-item-footer">
+                <span class="menu-item-price">\${priceText}₽</span>
+                \${item.available ? \`<button onclick="addToCart('\${categoryKey}', '\${itemKey}')" class="btn-primary btn-small">В корзину</button>\` : ''}
+            </div>
         </div>
-        <button class="add-to-cart" 
-                onclick="addToCart('${categoryKey}', '${itemKey}')" 
-                ${!item.available ? 'disabled' : ''}>
-            ${item.available ? 'Добавить в корзину' : 'Нет в наличии'}
-        </button>
-        ${!item.available ? '<div class="unavailable-badge">Нет в наличии</div>' : ''}
-    `;
-    
+    \`;
+
     return div;
 }
 
@@ -285,250 +569,167 @@ function createMenuItemElement(categoryKey, itemKey, item) {
 function addToCart(categoryKey, itemKey) {
     const item = menuData[categoryKey].items[itemKey];
     if (!item.available) return;
-    
+
+    // Проверяем, есть ли товар уже в корзине
     const existingItem = cart.find(cartItem => 
         cartItem.categoryKey === categoryKey && cartItem.itemKey === itemKey
     );
-    
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         cart.push({
-            categoryKey,
-            itemKey,
+            categoryKey: categoryKey,
+            itemKey: itemKey,
             name: item.name,
             price: item.price,
             quantity: 1
         });
     }
-    
+
     updateCartDisplay();
+
+    // Показываем уведомление
+    showNotification('Товар добавлен в корзину');
 }
 
 function removeFromCart(index) {
     cart.splice(index, 1);
     updateCartDisplay();
-    renderCart();
 }
 
-function updateQuantity(index, change) {
+function updateCartQuantity(index, change) {
     cart[index].quantity += change;
     if (cart[index].quantity <= 0) {
         removeFromCart(index);
     } else {
         updateCartDisplay();
-        renderCart();
     }
 }
 
 function updateCartDisplay() {
-    const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartCountElements = document.querySelectorAll('.cart-count');
-    
-    cartCountElements.forEach(element => {
-        element.textContent = cartCount;
-        if (cartCount > 0) {
-            element.classList.add('visible');
-        } else {
-            element.classList.remove('visible');
-        }
-    });
-}
+    const cartItems = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+    const cartCount = document.querySelector('.cart-count');
 
-function openCart() {
-    renderCart();
-    document.getElementById('cart-modal').classList.remove('hidden');
-}
-
-function closeCart() {
-    document.getElementById('cart-modal').classList.add('hidden');
-}
-
-function renderCart() {
-    const cartItemsContainer = document.getElementById('cart-items');
-    const cartEmptyContainer = document.getElementById('cart-empty');
-    const cartTotalElement = document.getElementById('cart-total');
-    
     if (cart.length === 0) {
-        cartItemsContainer.innerHTML = '';
-        cartEmptyContainer.classList.remove('hidden');
-        cartTotalElement.textContent = '0';
+        cartItems.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
+        cartTotal.textContent = '0';
+        if (cartCount) cartCount.textContent = '0';
         return;
     }
-    
-    cartEmptyContainer.classList.add('hidden');
-    cartItemsContainer.innerHTML = '';
-    
+
     let total = 0;
-    
-    cart.forEach((item, index) => {
-        const cartItemElement = document.createElement('div');
-        cartItemElement.className = 'cart-item';
-        
-        // Обработка цены (может быть строкой с несколькими ценами)
-        let itemPrice = 0;
-        let priceDisplay = item.price;
-        
-        if (typeof item.price === 'number') {
-            itemPrice = item.price;
-            priceDisplay = `${item.price} ₽`;
-        } else if (typeof item.price === 'string') {
-            // Для цен вида "290/470" берем первую цену
-            const firstPrice = item.price.match(/\d+/);
-            if (firstPrice) {
-                itemPrice = parseInt(firstPrice[0]);
-            }
-            priceDisplay = `${item.price} ₽`;
-        }
-        
-        total += itemPrice * item.quantity;
-        
-        cartItemElement.innerHTML = `
-            <div class="cart-item-info">
-                <div class="cart-item-name">${item.name}</div>
-                <div class="cart-item-price">${priceDisplay}</div>
-            </div>
-            <div class="cart-item-controls">
-                <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
-                <span class="quantity">${item.quantity}</span>
-                <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
-                <button class="remove-btn" onclick="removeFromCart(${index})">Удалить</button>
-            </div>
-        `;
-        
-        cartItemsContainer.appendChild(cartItemElement);
-    });
-    
-    cartTotalElement.textContent = total;
-}
+    let totalItems = 0;
 
-// Админ-панель
-function showAdminLogin() {
-    window.adminLogin = adminLogin;
-    document.getElementById('admin-login').classList.remove('hidden');
-    document.getElementById('admin-panel').classList.add('hidden');
-}
+    cartItems.innerHTML = cart.map((item, index) => {
+        const itemPrice = typeof item.price === 'string' ? 0 : item.price;
+        const itemTotal = itemPrice * item.quantity;
+        total += itemTotal;
+        totalItems += item.quantity;
 
-function showAdminPanel() {
-    document.getElementById('admin-login').classList.add('hidden');
-    document.getElementById('admin-panel').classList.remove('hidden');
-    renderAdminPanel();
-}
-
-function adminLogin(event) {
-    event.preventDefault();
-    
-    const username = document.getElementById('admin-username').value;
-    const password = document.getElementById('admin-password').value;
-    const errorElement = document.getElementById('login-error');
-    
-    if (username === 'Denis' && password === 'AshtoneIzoldaFedor') {
-        isAdminLoggedIn = true;
-        errorElement.classList.add('hidden');
-        showAdminPanel();
-    } else {
-        errorElement.classList.remove('hidden');
-    }
-}
-
-function adminLogout() {
-    isAdminLoggedIn = false;
-    window.location.hash = '';
-    goHome();
-    document.getElementById('admin-username').value = '';
-    document.getElementById('admin-password').value = '';
-}
-
-function renderAdminPanel() {
-    const adminCategoriesContainer = document.getElementById('admin-categories');
-    adminCategoriesContainer.innerHTML = '';
-    
-    Object.keys(menuData).forEach(categoryKey => {
-        const category = menuData[categoryKey];
-        const categoryDiv = document.createElement('div');
-        categoryDiv.className = 'admin-category';
-        
-        let categoryHTML = `<h3>${category.name}</h3>`;
-        
-        Object.keys(category.items).forEach(itemKey => {
-            const item = category.items[itemKey];
-            categoryHTML += `
-                <div class="admin-item" data-category="${categoryKey}" data-item="${itemKey}">
-                    <div class="admin-item-name">${item.name}</div>
-                    <div class="admin-controls">
-                        <input type="text" class="price-input" value="${item.price}" 
-                               onchange="updatePrice('${categoryKey}', '${itemKey}', this.value)">
-                        <label class="availability-toggle">
-                            <input type="checkbox" ${item.available ? 'checked' : ''} 
-                                   onchange="updateAvailability('${categoryKey}', '${itemKey}', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                        <span class="status">${item.available ? 'В наличии' : 'Нет в наличии'}</span>
-                    </div>
+        return \`
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <h4>\${item.name}</h4>
+                    <span class="cart-item-price">\${item.price}₽</span>
                 </div>
-            `;
-        });
-        
-        categoryDiv.innerHTML = categoryHTML;
-        adminCategoriesContainer.appendChild(categoryDiv);
-    });
+                <div class="cart-item-controls">
+                    <button onclick="updateCartQuantity(\${index}, -1)" class="btn-small">-</button>
+                    <span class="cart-quantity">\${item.quantity}</span>
+                    <button onclick="updateCartQuantity(\${index}, 1)" class="btn-small">+</button>
+                    <button onclick="removeFromCart(\${index})" class="btn-danger btn-small">×</button>
+                </div>
+            </div>
+        \`;
+    }).join('');
+
+    cartTotal.textContent = total;
+    if (cartCount) cartCount.textContent = totalItems;
 }
 
-function updatePrice(categoryKey, itemKey, newPrice) {
-    menuData[categoryKey].items[itemKey].price = isNaN(newPrice) ? newPrice : parseInt(newPrice);
-    
-    // Обновляем отображение меню, если оно открыто
-    if (currentPage === 'menu-page' && currentCategory === categoryKey) {
-        renderMenuItems(categoryKey);
+function clearCart() {
+    if (cart.length === 0) return;
+
+    if (confirm('Очистить корзину?')) {
+        cart = [];
+        updateCartDisplay();
     }
 }
 
-function updateAvailability(categoryKey, itemKey, isAvailable) {
-    menuData[categoryKey].items[itemKey].available = isAvailable;
-    
-    // Обновляем отображение меню, если оно открыто
-    if (currentPage === 'menu-page' && currentCategory === categoryKey) {
-        renderMenuItems(categoryKey);
-    }
-    
-    // Обновляем статус в админ-панели
-    const adminItem = document.querySelector(`[data-category="${categoryKey}"][data-item="${itemKey}"]`);
-    if (adminItem) {
-        const statusSpan = adminItem.querySelector('.status');
-        statusSpan.textContent = isAvailable ? 'В наличии' : 'Нет в наличии';
-    }
+// Модальные окна
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
 }
 
-// Обработка клика по оверлею модального окна
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+// Закрытие модального окна при клике вне его
 document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('modal-overlay')) {
-        closeCart();
+    if (event.target.classList.contains('modal')) {
+        event.target.classList.remove('active');
     }
 });
 
-// Обработка клавиши Escape для закрытия модального окна
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeCart();
+// Уведомления
+function showNotification(message) {
+    // Создаем элемент уведомления если его нет
+    let notification = document.getElementById('notification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'notification';
+        notification.className = 'notification';
+        document.body.appendChild(notification);
     }
-});
 
-// Секретная комбинация для доступа к админ-панели
-let adminKeySequence = '';
-document.addEventListener('keydown', function(event) {
-    adminKeySequence += event.key.toLowerCase();
-    if (adminKeySequence.includes('admin')) {
-        adminKeySequence = '';
-        window.location.hash = 'admin';
-        showAdminPage();
-    }
-    if (adminKeySequence.length > 10) {
-        adminKeySequence = adminKeySequence.slice(-5);
-    }
-});
+    notification.textContent = message;
+    notification.classList.add('show');
 
-// Добавляем в консоль браузера подсказку для админ-доступа
-console.log('%cДля доступа к админ-панели:', 'color: #8b5cf6; font-size: 16px; font-weight: bold');
-console.log('%c1. Перейти по ссылке: window.location.hash = "admin"', 'color: #f59e0b');
-console.log('%c2. Или вызвать функцию: openAdmin()', 'color: #f59e0b');
-console.log('%c3. Или набрать на клавиатуре: admin', 'color: #f59e0b');
+    // Автоматически скрываем через 3 секунды
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+// CSS для уведомлений (добавим в style.css)
+if (!document.getElementById('notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'notification-styles';
+    style.textContent = \`
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--color-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-sm);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 10000;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .notification {
+                right: 12px;
+                bottom: 12px;
+                left: 12px;
+                right: 12px;
+                transform: translateY(100px);
+            }
+
+            .notification.show {
+                transform: translateY(0);
+            }
+        }
+    \`;
+    document.head.appendChild(style);
+}
