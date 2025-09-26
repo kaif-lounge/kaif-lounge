@@ -1,0 +1,442 @@
+{
+  "drinks": {
+    "name": "Напитки",
+    "items": {
+      "dr_pepper": {
+        "name": "Dr Pepper",
+        "price": 250,
+        "available": true
+      },
+      "fanta": {
+        "name": "Fanta original",
+        "price": 230,
+        "available": true
+      },
+      "coca_cola": {
+        "name": "Coca cola original",
+        "price": 230,
+        "available": true
+      },
+      "coca_cola_glass": {
+        "name": "Coca cola original glass",
+        "price": 300,
+        "available": true
+      },
+      "sprite": {
+        "name": "Sprite original",
+        "price": 230,
+        "available": true
+      },
+      "mountain_dew": {
+        "name": "Mountain Dew",
+        "price": 230,
+        "available": true
+      },
+      "juice": {
+        "name": "Сок",
+        "price": 250,
+        "available": true
+      },
+      "tonic_lemon": {
+        "name": "Тоник лимон",
+        "price": 230,
+        "available": true
+      },
+      "home_lemonade": {
+        "name": "Домашний лимонад",
+        "price": "290/470",
+        "available": true
+      },
+      "tea_berries": {
+        "name": "Чай в чайнике (черные, фруктовые, зелёные, улун)",
+        "price": 270,
+        "available": true
+      },
+      "chinese_tea": {
+        "name": "Китайский чай (пуэр, габа, да хун пао)",
+        "price": 490,
+        "available": true
+      },
+      "cherry_bubble": {
+        "name": "Вишневый пузырь",
+        "price": 490,
+        "available": true
+      },
+      "sea_buckthorn": {
+        "name": "Облепиховый",
+        "price": 490,
+        "available": true
+      }
+    }
+  },
+  "coffee": {
+    "name": "Кофе",
+    "items": {
+      "espresso": {
+        "name": "Эспрессо",
+        "price": 150,
+        "available": true
+      },
+      "americano": {
+        "name": "Американо",
+        "price": 180,
+        "available": true
+      },
+      "cappuccino": {
+        "name": "Капучино",
+        "price": 220,
+        "available": true
+      },
+      "author_coffee": {
+        "name": "Авторское кофе",
+        "price": 300,
+        "available": true
+      }
+    }
+  },
+  "hookah": {
+    "name": "Кальян",
+    "items": {
+      "standard": {
+        "name": "Стандарт (Starline, Darkside, Sebero, Blackburn, Overdose, Deus, Element, Haw, Duft, Сарма)",
+        "price": 1000,
+        "available": true
+      },
+      "premium": {
+        "name": "Premium (Tgismund, Drugna, Bonch)",
+        "price": 1500,
+        "available": true
+      },
+      "fruit_hookah": {
+        "name": "Авторские на фруктах",
+        "price": 1900,
+        "available": true
+      }
+    }
+  },
+  "salads": {
+    "name": "Салаты",
+    "items": {
+      "caesar_chicken": {
+        "name": "Цезарь с курицей",
+        "price": 460,
+        "available": true
+      },
+      "caesar_shrimp": {
+        "name": "Цезарь с креветками",
+        "price": 520,
+        "available": true
+      },
+      "liver_orange": {
+        "name": "Салат с печенью и апельсином",
+        "price": 450,
+        "available": true
+      },
+      "yan_mamun": {
+        "name": "Ян Мамун (с креветками, манго, орешками кешью)",
+        "price": 590,
+        "available": true
+      },
+      "vegetable_avocado": {
+        "name": "Овощной салат с авокадо и виноградом",
+        "price": 430,
+        "available": true
+      }
+    }
+  },
+  "soups": {
+    "name": "Супы",
+    "items": {
+      "chicken": {
+        "name": "Куриный",
+        "price": 390,
+        "available": true
+      },
+      "mushroom_champignon": {
+        "name": "Суп пюре из шампиньонов",
+        "price": 480,
+        "available": true
+      },
+      "tom_yam": {
+        "name": "Том Ям с морепродуктами",
+        "price": 540,
+        "available": true
+      },
+      "miso_truffle": {
+        "name": "Мисо суп с форелью",
+        "price": 460,
+        "available": true
+      }
+    }
+  },
+  "hot_dishes": {
+    "name": "Горячее",
+    "items": {
+      "fried_cheese": {
+        "name": "Жаркое в горшочке",
+        "price": 460,
+        "available": true
+      },
+      "pork_ribs": {
+        "name": "Рёбра свиные (от 700гр.)",
+        "price": "100 (100гр)",
+        "available": true
+      },
+      "chicken_skewers": {
+        "name": "Куриные шашлычки с овощами 3 шпажки",
+        "price": 410,
+        "available": true
+      },
+      "sausages_potato": {
+        "name": "Колбаски с запеченным картофелем и разносолом",
+        "price": 530,
+        "available": true
+      },
+      "handmade_dumplings": {
+        "name": "Пельмени ручной лепки запеченные/отварные",
+        "price": 530,
+        "available": true
+      },
+      "roasted_breast": {
+        "name": "Запеченная грудка с запеченным картофелем",
+        "price": 510,
+        "available": true
+      },
+      "burger_fri": {
+        "name": "Бургер-фри",
+        "price": 490,
+        "available": true
+      },
+      "hotdog": {
+        "name": "Хот-дог свинина/куриный",
+        "price": 420,
+        "available": true
+      }
+    }
+  },
+  "pasta": {
+    "name": "Паста",
+    "items": {
+      "carbonara_bacon": {
+        "name": "Карбонара с беконом",
+        "price": 420,
+        "available": true
+      },
+      "pasta_shrimp": {
+        "name": "Паста с креветками и сыром дор блю",
+        "price": 520,
+        "available": true
+      },
+      "udon_chicken": {
+        "name": "Удон(рисовая, гречневая, пшеничная) с курицей",
+        "price": 420,
+        "available": true
+      }
+    }
+  },
+  "rolls": {
+    "name": "Роллы",
+    "items": {
+      "philadelphia_avocado": {
+        "name": "Филадельфия с авокадо/огурцом",
+        "price": "480/460",
+        "available": true
+      },
+      "california_avocado": {
+        "name": "Калифорния с авокадо/огурцом",
+        "price": "470/450",
+        "available": true
+      },
+      "bonito": {
+        "name": "Бонито",
+        "price": 480,
+        "available": true
+      }
+    }
+  },
+  "pizza": {
+    "name": "Пицца",
+    "items": {
+      "pizza_assorted": {
+        "name": "Пицца (в ассортименте)",
+        "price": 500,
+        "available": true
+      }
+    }
+  },
+  "appetizers": {
+    "name": "Закуски",
+    "items": {
+      "bruschetta_tuna": {
+        "name": "Брускета с тунцом",
+        "price": 560,
+        "available": true
+      },
+      "garlic_croutons": {
+        "name": "Гренки чесночные",
+        "price": 230,
+        "available": true
+      },
+      "french_fries": {
+        "name": "Картофель фри/по деревенски с соусом",
+        "price": 250,
+        "available": true
+      },
+      "nuggets": {
+        "name": "Наггетсы",
+        "price": 400,
+        "available": true
+      },
+      "strips": {
+        "name": "Стрипсы",
+        "price": 430,
+        "available": true
+      },
+      "fried_cheese_sticks": {
+        "name": "Сыр жареный",
+        "price": 450,
+        "available": true
+      },
+      "chicken_wings": {
+        "name": "Крылья куриные барбекю / острые",
+        "price": 410,
+        "available": true
+      },
+      "tempura_shrimp": {
+        "name": "Креветки темпура",
+        "price": 560,
+        "available": true
+      },
+      "chili_shrimp": {
+        "name": "Креветки в соусе чили",
+        "price": 530,
+        "available": true
+      },
+      "bacon_croutons": {
+        "name": "Сало с гренками",
+        "price": 390,
+        "available": true
+      }
+    }
+  },
+  "sets": {
+    "name": "Сеты",
+    "items": {
+      "set1": {
+        "name": "№1 - гренки, фри, крылья, колбаски, стрипсы, чипсы начос",
+        "price": 790,
+        "available": true
+      },
+      "set2": {
+        "name": "№2 - гренки, луковые кольца, картофель по деревенски, сыр жареный, наггетсы, сыр косичка",
+        "price": 890,
+        "available": true
+      },
+      "set3": {
+        "name": "№3 - колбаски, наггетсы, стрипсы, крылья, чипсы начос",
+        "price": 1090,
+        "available": true
+      }
+    }
+  },
+  "fruits": {
+    "name": "Фрукты",
+    "items": {
+      "grapes": {
+        "name": "Виноград",
+        "price": "100",
+        "available": true
+      },
+      "lemon": {
+        "name": "Лимон",
+        "price": "100",
+        "available": true
+      },
+      "orange": {
+        "name": "Апельсин",
+        "price": "100",
+        "available": true
+      },
+      "mango": {
+        "name": "Манго",
+        "price": "150",
+        "available": true
+      }
+    }
+  },
+  "sauces": {
+    "name": "Соусы",
+    "items": {
+      "cheese": {
+        "name": "Сырный",
+        "price": 50,
+        "available": true
+      },
+      "barbecue": {
+        "name": "Барбекю",
+        "price": 50,
+        "available": true
+      },
+      "sweet_sour": {
+        "name": "Кисло-сладкий",
+        "price": 50,
+        "available": true
+      },
+      "cream_garlic": {
+        "name": "Сливочно-чесночный",
+        "price": 50,
+        "available": true
+      },
+      "burger": {
+        "name": "Бургер",
+        "price": 50,
+        "available": true
+      },
+      "ketchup": {
+        "name": "Кетчуп",
+        "price": 50,
+        "available": true
+      },
+      "curry": {
+        "name": "Карри",
+        "price": 50,
+        "available": true
+      },
+      "mustard": {
+        "name": "Горчичный",
+        "price": 50,
+        "available": true
+      }
+    }
+  },
+  "snacks": {
+    "name": "Снеки",
+    "items": {
+      "chips_lays": {
+        "name": "Чипсы lays в ассортименте",
+        "price": 250,
+        "available": true
+      },
+      "chips_cheetos": {
+        "name": "Чипсы cheetos в ассортименте",
+        "price": 200,
+        "available": true
+      },
+      "pistachio": {
+        "name": "Фисташки",
+        "price": 400,
+        "available": true
+      },
+      "chicken_jerky": {
+        "name": "Джерки куриные",
+        "price": 200,
+        "available": true
+      },
+      "beef_jerky": {
+        "name": "Джерки говядина",
+        "price": 250,
+        "available": true
+      }
+    }
+  }
+}

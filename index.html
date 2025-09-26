@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIF Lounge - Кальянная</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Главная страница -->
+    <div id="home-page" class="page active">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">KAIF Lounge</h1>
+                <div class="cart-icon" onclick="openCart()">
+                    <span class="cart-icon-symbol">🛒</span>
+                    <span id="cart-count" class="cart-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h2 class="hero-title">Добро пожаловать в KAIF Lounge</h2>
+                    <p class="hero-subtitle">Лучшая кальянная с уютной атмосферой</p>
+                    
+                    <button class="btn btn--primary btn--hero" onclick="openMenu()">
+                        МЕНЮ
+                    </button>
+                    
+                    <div class="hero-links">
+                        <a href="https://t.me/denerixon" target="_blank" class="btn btn--secondary">
+                            Мы в Telegram
+                        </a>
+                        
+                        <div class="info-block">
+                            <p>Больше информации о нашем заведении:</p>
+                            <a href="https://vk.com/kaiflounge" target="_blank" class="vk-link">
+                                VK: kaiflounge
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Страница меню -->
+    <div id="menu-page" class="page">
+        <header class="header">
+            <div class="container">
+                <button class="back-btn" onclick="goHome()">← Назад</button>
+                <h1 class="page-title">Меню</h1>
+                <div class="cart-icon" onclick="openCart()">
+                    <span class="cart-icon-symbol">🛒</span>
+                    <span id="cart-count-menu" class="cart-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="categories-container">
+            <div class="container">
+                <div class="categories" id="categories"></div>
+            </div>
+        </div>
+
+        <main class="menu-content">
+            <div class="container">
+                <div id="menu-items" class="menu-items"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Корзина -->
+    <div id="cart-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeCart()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Корзина</h3>
+                <button class="modal-close" onclick="closeCart()">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="cart-items" class="cart-items"></div>
+                <div id="cart-empty" class="cart-empty hidden">
+                    Корзина пуста
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="cart-total">
+                    Итого: <span id="cart-total">0</span> ₽
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Админ-панель -->
+    <div id="admin-page" class="page">
+        <!-- Форма входа -->
+        <div id="admin-login" class="admin-login">
+            <div class="container">
+                <div class="login-form">
+                    <h2>Админ-панель</h2>
+                    <form onsubmit="adminLogin(event)">
+                        <div class="form-group">
+                            <label class="form-label">Логин:</label>
+                            <input type="text" class="form-control" id="admin-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Пароль:</label>
+                            <input type="password" class="form-control" id="admin-password" required>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--full-width">Войти</button>
+                    </form>
+                    <div id="login-error" class="login-error hidden">
+                        Неверный логин или пароль
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Панель управления -->
+        <div id="admin-panel" class="admin-panel hidden">
+            <header class="header">
+                <div class="container">
+                    <h1>Админ-панель</h1>
+                    <button class="btn btn--secondary" onclick="adminLogout()">Выход</button>
+                </div>
+            </header>
+            
+            <main class="admin-content">
+                <div class="container">
+                    <div id="admin-categories" class="admin-categories"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
